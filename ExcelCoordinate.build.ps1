@@ -7,11 +7,22 @@ task Test {
     . $scriptPath
     . $testPath
  
-    Invoke-Pester -Output Detailed
+    Import-Module -Name Pester
+    $config = New-PesterConfiguration
+    $config.Run.Path = $testPath
+    $config.CodeCoverage.Enabled = $true
+    $config.CodeCoverage.Path = $scriptPath
+    $config.CodeCoverage.CoveragePercentTarget = 80
+    $config.CodeCoverage.OutputFormat = 'CoverageGutters'
+    $config.CodeCoverage.OutputPath = 'cov.xml'
+    $config.CodeCoverage.OutputEncoding = 'UTF8'
+
+    Invoke-Pester -Configuration $config
+
 }
  
 task Release {
-    ConvertFrom-ExcelCellCoordinate -i 'A1'
+
 }
  
 task . Test, Release

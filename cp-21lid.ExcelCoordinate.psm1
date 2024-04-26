@@ -6,6 +6,23 @@ function ConvertFrom-ExcelCellCoordinate {
         [string]$InputObject
     )
     process{
+        $cell = Resolve-ExcelCoordinate -i $InputObject
+        $column_index = Convert-CharToIndex -i $cell.Column
+        $column_number = Convert-IndexToInt -i $column_index
+
+        $cell['Column'] = $column_number
+        return $cell
+    }
+}
+
+function Resolve-ExcelCoordinate {
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline = $true)]
+        [Alias("i")]
+        [string]$InputObject
+    )
+    process{
         if ($InputObject -notmatch "^(?<Column>[a-z]{1,3})(?<Row>[0-9]+)$") {
             throw [Exception] "Invalid Input format"
         }
@@ -14,7 +31,7 @@ function ConvertFrom-ExcelCellCoordinate {
             'Column' = $Matches['Column']
             'Row' = $Matches['Row']
         }
-        Convert-CharToIndex -i $cell.Column
+        return $cell
     }
 }
 
@@ -31,7 +48,7 @@ function Convert-CharToIndex {
         for ($i = 0; $i -lt $Column.Length; $i++) {
             $column_chars[$i] = (($column_chars[$i]) - 64)
         }
-        Convert-IndexToInt -i $column_chars
+        return $column_chars
     }
 }
 
@@ -47,12 +64,6 @@ function Convert-IndexToInt{
         for ($i = 0; $i -lt $column_chars.Count; $i++) {
             $column_number += $column_chars[$i] * [Math]::Pow(26, $i)
         }
-    }
-}
-
-Describe 'SeparateChar-FromDigit'{
-    It 'Given no parameters, throws an error' {
-        $currentCell = ConvertFrom-ExcelCellCoordinate -i "A1"
-        $currentCell['Column'] | Should -Be 1
+        return $column_number
     }
 }

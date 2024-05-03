@@ -28,7 +28,10 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         shell: pwsh
-        run: Invoke-Build .
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer, Pester, InvokeBuild
+          Invoke-Build .
 
       
           
